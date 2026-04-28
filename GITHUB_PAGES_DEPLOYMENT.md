@@ -1,8 +1,8 @@
-# Deploying a Next.js Project to GitHub Pages with GitHub Actions
+# Next.js to GitHub Pages Deployment Guide
 
-This document records the setup used to deploy this Next.js portfolio to GitHub Pages.
+This is a simple from-scratch guide for deploying a Next.js project to GitHub Pages using GitHub Actions.
 
-Live site pattern:
+Example final URL:
 
 ```text
 https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/
@@ -14,23 +14,51 @@ For this project:
 https://ashith-stackly.github.io/Portfoilio/
 ```
 
-## 1. Install Dependencies
+## What Files Need to Be Added or Changed?
 
-From the project folder:
+After creating your Next.js project, you mainly need these files:
+
+```text
+next.config.mjs
+public/.nojekyll
+.github/workflows/deploy.yml
+.gitignore
+```
+
+You also need to push the project to GitHub and enable GitHub Pages from repository settings.
+
+## Step 1: Create or Open Your Next.js Project
+
+If you are creating a new project:
+
+```bash
+npx create-next-app@latest my-portfolio
+cd my-portfolio
+```
+
+If you already have a project, open that project folder.
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-On Windows PowerShell, if `npm` is blocked by execution policy, use:
+On Windows PowerShell, if `npm` is blocked, use:
 
 ```bash
 npm.cmd install
 ```
 
-## 2. Configure Next.js for Static Export
+## Step 2: Add `next.config.mjs`
 
-Create or update `next.config.mjs`:
+Create this file in the project root:
+
+```text
+next.config.mjs
+```
+
+Add this code:
 
 ```js
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -49,25 +77,36 @@ const nextConfig = {
 export default nextConfig;
 ```
 
-Why this is needed:
+Why this file is needed:
 
-- `output: "export"` generates a static `out` folder for GitHub Pages.
-- `basePath` makes assets load correctly under a repository URL like `/Portfoilio`.
-- `images.unoptimized` avoids image optimization server requirements, since GitHub Pages is static hosting.
+- `output: "export"` creates a static `out` folder.
+- GitHub Pages can host only static files.
+- `basePath` fixes CSS and JS paths when your site is hosted inside a repo path.
+- `images.unoptimized` is needed because GitHub Pages does not run a Next.js image server.
 
-## 3. Add `.nojekyll`
+## Step 3: Add `.nojekyll`
 
-Create this file:
+Create this empty file:
 
 ```text
 public/.nojekyll
 ```
 
-This prevents GitHub Pages from processing the site with Jekyll and helps serve `_next` assets correctly.
+No code is needed inside it.
 
-## 4. Update `.gitignore`
+Why this file is needed:
 
-Make sure build folders are ignored:
+GitHub Pages sometimes treats static sites as Jekyll sites. This file tells GitHub Pages not to do that, so `_next` files work correctly.
+
+## Step 4: Update `.gitignore`
+
+Open:
+
+```text
+.gitignore
+```
+
+Make sure these lines exist:
 
 ```gitignore
 node_modules
@@ -75,15 +114,21 @@ node_modules
 out
 ```
 
-## 5. Add GitHub Actions Workflow
+Why this is needed:
 
-Create:
+- `node_modules` should not be pushed.
+- `.next` is a local build folder.
+- `out` is generated during deployment.
+
+## Step 5: Add GitHub Actions Workflow
+
+Create this folder and file:
 
 ```text
 .github/workflows/deploy.yml
 ```
 
-Use this workflow:
+Add this code:
 
 ```yaml
 name: Deploy to GitHub Pages
@@ -144,33 +189,61 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-For this project, the base path is:
+Very important:
+
+Replace this:
+
+```yaml
+NEXT_PUBLIC_BASE_PATH: /YOUR_REPOSITORY_NAME
+```
+
+With your GitHub repository name.
+
+For this project:
 
 ```yaml
 NEXT_PUBLIC_BASE_PATH: /Portfoilio
 ```
 
-If the repository is named `username.github.io`, use an empty base path instead:
+If your repository name is:
+
+```text
+my-portfolio
+```
+
+Then use:
+
+```yaml
+NEXT_PUBLIC_BASE_PATH: /my-portfolio
+```
+
+If your repository is a special GitHub Pages repository like:
+
+```text
+username.github.io
+```
+
+Then use an empty value:
 
 ```yaml
 NEXT_PUBLIC_BASE_PATH: ""
 ```
 
-## 6. Test the Build Locally
+## Step 6: Test Build Locally
 
-For a normal local build:
+Normal build:
 
 ```bash
 npm run build
 ```
 
-For a GitHub Pages-style build with repository base path:
+On Windows:
 
 ```bash
-NEXT_PUBLIC_BASE_PATH=/YOUR_REPOSITORY_NAME npm run build
+npm.cmd run build
 ```
 
-On Windows PowerShell:
+Test with GitHub Pages base path:
 
 ```powershell
 $env:NEXT_PUBLIC_BASE_PATH="/YOUR_REPOSITORY_NAME"
@@ -178,23 +251,41 @@ npm.cmd run build
 Remove-Item Env:NEXT_PUBLIC_BASE_PATH
 ```
 
-The build should generate:
+For this project:
+
+```powershell
+$env:NEXT_PUBLIC_BASE_PATH="/Portfoilio"
+npm.cmd run build
+Remove-Item Env:NEXT_PUBLIC_BASE_PATH
+```
+
+After build, you should see this folder:
 
 ```text
 out/
 ```
 
-## 7. Push to GitHub
+## Step 7: Push Code to GitHub
 
-Initialize Git if needed:
+Initialize Git:
 
 ```bash
 git init -b main
-git add .
-git commit -m "Initial Next.js portfolio"
 ```
 
-Add the GitHub remote:
+Add files:
+
+```bash
+git add .
+```
+
+Commit:
+
+```bash
+git commit -m "Initial Next.js deployment"
+```
+
+Add your GitHub repo:
 
 ```bash
 git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
@@ -213,21 +304,24 @@ git remote add origin https://github.com/Ashith-stackly/Portfoilio.git
 git push -u origin main
 ```
 
-## 8. Enable GitHub Pages
+## Step 8: Enable GitHub Pages
 
-In GitHub:
+Go to GitHub.
 
-1. Open the repository.
-2. Go to `Settings`.
-3. Go to `Pages`.
-4. Under `Build and deployment`, set `Source` to `GitHub Actions`.
-5. Do not configure the suggested Next.js workflow if this custom workflow already exists.
-6. Go to the `Actions` tab.
-7. Wait for `Deploy to GitHub Pages` to finish successfully.
+Open your repository.
 
-## 9. Deployment URL
+Then:
 
-After the workflow succeeds, open:
+1. Go to `Settings`.
+2. Click `Pages`.
+3. Under `Build and deployment`, select `GitHub Actions`.
+4. Do not click the suggested `Configure` button if you already added `.github/workflows/deploy.yml`.
+5. Go to the `Actions` tab.
+6. Wait for `Deploy to GitHub Pages` to become green.
+
+## Step 9: Open Your Website
+
+Use this URL format:
 
 ```text
 https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/
@@ -239,50 +333,95 @@ For this project:
 https://ashith-stackly.github.io/Portfoilio/
 ```
 
-## Troubleshooting
+## Quick Summary
 
-### Page opens but styles/scripts are missing
+Files to add or edit:
 
-Check `NEXT_PUBLIC_BASE_PATH`.
+```text
+next.config.mjs
+public/.nojekyll
+.github/workflows/deploy.yml
+.gitignore
+```
 
-For project pages, it must match the repository name:
+Commands:
+
+```bash
+npm install
+npm run build
+git init -b main
+git add .
+git commit -m "Initial Next.js deployment"
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
+git push -u origin main
+```
+
+GitHub setting:
+
+```text
+Settings > Pages > Source > GitHub Actions
+```
+
+## Common Problems and Fixes
+
+### 1. Page opens but CSS is missing
+
+Problem:
+
+`NEXT_PUBLIC_BASE_PATH` is wrong.
+
+Fix:
+
+Use your exact repository name:
+
+```yaml
+NEXT_PUBLIC_BASE_PATH: /YOUR_REPOSITORY_NAME
+```
+
+For this project:
 
 ```yaml
 NEXT_PUBLIC_BASE_PATH: /Portfoilio
 ```
 
-### GitHub Pages says “Use a suggested workflow”
-
-This is normal before the first successful workflow run. Go to the `Actions` tab and check whether the deployment workflow is running.
-
-### `_next` files return 404
-
-Make sure:
-
-- `public/.nojekyll` exists.
-- `next.config.mjs` has `output: "export"`.
-- The workflow uploads `./out`.
-
-### Build passes locally but fails in GitHub Actions
+### 2. Site shows 404
 
 Check:
 
-- `package-lock.json` is committed.
-- The workflow uses `npm ci`.
-- The Node version in the workflow is compatible, usually Node `20`.
+- GitHub Actions deployment finished successfully.
+- GitHub Pages source is set to `GitHub Actions`.
+- You are opening the correct URL.
 
-### Site works locally but not on GitHub Pages
-
-Run a local base-path build:
-
-```powershell
-$env:NEXT_PUBLIC_BASE_PATH="/YOUR_REPOSITORY_NAME"
-npm.cmd run build
-Remove-Item Env:NEXT_PUBLIC_BASE_PATH
-```
-
-Then inspect `out/index.html` and verify asset URLs start with:
+Correct URL format:
 
 ```text
-/YOUR_REPOSITORY_NAME/_next/
+https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/
 ```
+
+### 3. `_next` files show 404
+
+Check:
+
+- `public/.nojekyll` exists.
+- `next.config.mjs` has `output: "export"`.
+- Workflow uploads `./out`.
+
+### 4. GitHub Actions build fails
+
+Check:
+
+- `package-lock.json` is pushed.
+- Workflow uses `npm ci`.
+- Node version is `20`.
+
+### 5. Pages settings still show suggested workflows
+
+That is normal before the first successful deployment.
+
+Go to:
+
+```text
+Actions > Deploy to GitHub Pages
+```
+
+Wait for the workflow to complete.
