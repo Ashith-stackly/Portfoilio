@@ -1,5 +1,5 @@
-import HomePage from "@/components/HomePage";
+import StacklyStaticPage from "@/components/StacklyStaticPage";
 
 export default function Home() {
-  return <HomePage />;
+  return <StacklyStaticPage />;
 }
