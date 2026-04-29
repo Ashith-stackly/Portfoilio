@@ -10,18 +10,20 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Stackly Auth",
+  title: "Ashith Jain - Front-End Developer",
   description:
-    "Static Stackly authentication, planning, and storefront pages exported with Next.js.",
-  authors: [{ name: "Stackly" }],
+    "Front-End Developer skilled in HTML5, CSS3, Bootstrap, JavaScript, jQuery, ReactJs, Python, SQL, Tailwind CSS, Next.js, Git, GitHub, and Postman.",
+  authors: [{ name: "Ashith Jain" }],
   openGraph: {
-    title: "Stackly Auth",
+    title: "Ashith Jain - Front-End Developer",
     description:
-      "Static Stackly authentication, planning, and storefront pages exported with Next.js.",
+      "Front-End Developer skilled in modern web technologies and tooling.",
     type: "website",
+    images: ["https://lovable.dev/opengraph-image-p98pqg.png"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    images: ["https://lovable.dev/opengraph-image-p98pqg.png"],
   },
 };
 
